@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class NotesPage extends StatelessWidget {
@@ -6,9 +5,14 @@ class NotesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      body: const Center(
         child: Text("NotesPage"),
+      ),
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        print("pressed");
+      },
+        child: Icon(Icons.add),
       ),
     );
   }
