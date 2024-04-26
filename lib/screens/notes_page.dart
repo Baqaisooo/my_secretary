@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_secretary/screens/add_note_page.dart';
+
 
 class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
@@ -10,10 +12,11 @@ class NotesPage extends StatelessWidget {
         child: Text("NotesPage"),
       ),
       floatingActionButton: FloatingActionButton(onPressed: () {
-        print("pressed");
-      },
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AddNotePage(pageUse :PageUse.add)));
+        },
         child: Icon(Icons.add),
       ),
     );
   }
+
 }
