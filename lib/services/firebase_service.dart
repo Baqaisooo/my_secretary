@@ -5,12 +5,31 @@ import '../models/note_model.dart';
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 Future<bool> addNote(NoteModel note) async {
-
-  await db.collection("Notes").doc().set(note.toMap())
+  bool flag = true;
+  await db
+      .collection("Notes")
+      .doc()
+      .set(note.toMap())
       .onError((error, stackTrace) {
-        print(error);
-        return false;
+    print(error);
+    flag = false;
   });
 
-  return true;
+  return flag;
+}
+
+Future<List<NoteModel>> getNotes() async {
+  List<NoteModel> notes = [];
+
+  QuerySnapshot querySnapshot =
+      await db.collection("Notes").orderBy("title", descending: true).get();
+  querySnapshot.docs.forEach((note) {
+
+    notes.add(NoteModel(
+        title: note["title"],
+        addedDate: note["addedDate"],
+        updatedDate: note["updatedDate"])..id = note.id);
+  });
+
+  return notes;
 }

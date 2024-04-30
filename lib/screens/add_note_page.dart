@@ -80,8 +80,8 @@ class _AddNotePageState extends State<AddNotePage> {
                         });
                         await addNote(NoteModel(
                                 title: _textEditingController.text,
-                                addedDate: DateTime.now().microsecondsSinceEpoch,
-                                updatedDate: DateTime.now().microsecondsSinceEpoch))
+                                addedDate: DateTime.now().millisecondsSinceEpoch,
+                                updatedDate: DateTime.now().millisecondsSinceEpoch))
                             .then((value) {
                           if (value) {
                             Navigator.pushReplacement(
