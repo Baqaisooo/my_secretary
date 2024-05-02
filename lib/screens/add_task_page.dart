@@ -1,19 +1,19 @@
 
 import 'package:flutter/material.dart';
-import 'package:my_secretary/screens/notes_page.dart';
+import 'package:my_secretary/screens/tasks_page.dart';
 import 'package:my_secretary/services/firebase_service.dart';
-import 'package:my_secretary/models/note_model.dart';
+import 'package:my_secretary/models/task_model.dart';
 
 enum PageUse { add, update }
 
-class AddNotePage extends StatefulWidget {
-  AddNotePage({super.key, required PageUse pageUse});
+class AddTaskPage extends StatefulWidget {
+  AddTaskPage({super.key, required PageUse pageUse});
 
   @override
-  State<AddNotePage> createState() => _AddNotePageState();
+  State<AddTaskPage> createState() => _AddTaskPageState();
 }
 
-class _AddNotePageState extends State<AddNotePage> {
+class _AddTaskPageState extends State<AddTaskPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _textEditingController = TextEditingController();
@@ -30,7 +30,7 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("New Note"),
+        title: const Text("New Task"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -48,12 +48,12 @@ class _AddNotePageState extends State<AddNotePage> {
                       maxLines: 40,
                       keyboardType: TextInputType.multiline,
                       decoration: const InputDecoration(
-                        hintText: 'Enter your note here...',
+                        hintText: 'Enter your task here...',
                         border: OutlineInputBorder(),
                       ),
                       validator: (text) {
                         if (text!.isEmpty) {
-                          return "a Note should be written";
+                          return "a Task should be written";
                         } else {
                           return null;
                         }
@@ -69,7 +69,7 @@ class _AddNotePageState extends State<AddNotePage> {
                   height: 50,
                   child: _isLoading?
                   FilledButton(
-                    style: ButtonStyle(),
+                    style: const ButtonStyle(),
                     onPressed: () {},
                     child: const LinearProgressIndicator()):
                   FilledButton(
@@ -78,21 +78,22 @@ class _AddNotePageState extends State<AddNotePage> {
                         setState(() {
                           _isLoading = true;
                         });
-                        await addNote(NoteModel(
+                        await addTask(TaskModel(
                                 title: _textEditingController.text,
                                 addedDate: DateTime.now().millisecondsSinceEpoch,
                                 updatedDate: DateTime.now().millisecondsSinceEpoch))
                             .then((value) {
                           if (value) {
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => NotesPage()),
+                                  builder: (context) => const TasksPage()),
+                                    (Route<dynamic> route) => false
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Failed to add note. Please try again later.'),
+                                content: Text('Failed to add Task. Please try again later.'),
                               ),
                             );
                           }
@@ -100,7 +101,7 @@ class _AddNotePageState extends State<AddNotePage> {
                       }
                     },
                     child: const Text(
-                      "Add The New Note",
+                      "Add The New Task",
                       style: TextStyle(fontSize: 20),
                     ),
                   ),

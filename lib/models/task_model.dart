@@ -1,12 +1,12 @@
 
-class NoteModel {
+class TaskModel {
   late String id;
   final String title;
   final int addedDate;
   final int updatedDate;
 
 
-  NoteModel({
+  TaskModel({
     required this.title,
     required this.addedDate,
     required this.updatedDate,
@@ -16,7 +16,7 @@ class NoteModel {
 
 
 
-  factory NoteModel.fromMap(Map<String, dynamic> json) => NoteModel(
+  factory TaskModel.fromMap(Map<String, dynamic> json) => TaskModel(
     title: json["title"],
     addedDate: json["addedDate"],
     updatedDate: json["updatedDate"],

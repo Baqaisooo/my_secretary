@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'screens/notes_page.dart';
+import 'screens/tasks_page.dart';
 
 void main() async {
 
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: "Changa"
       ),
-      home: const NotesPage(),
+      home: const TasksPage(),
     );
   }
 }
