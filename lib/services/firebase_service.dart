@@ -52,3 +52,47 @@ Future<String> deleteTask(String taskID) async {
 
   return message;
 }
+
+Future<Either<String, TaskModel>> getTask(String taskID) async {
+
+  String errorMsg = "";
+  TaskModel? task;
+  await db
+      .collection("Tasks")
+      .doc(taskID)
+      .get()
+      .then((DocumentSnapshot<Map<String, dynamic>> doc) {
+        if(doc.exists){
+          task = TaskModel.fromMap(doc.data()!)..id=doc.id;
+        }
+        else{
+          errorMsg = "The task is not exist";
+        }
+  })
+      .onError((error, stackTrace) {errorMsg = error.toString();});
+
+  if(errorMsg.isEmpty){
+    return right(task!);
+  }
+  else{
+    return Left(errorMsg);
+  }
+}
+
+
+
+Future<Either<String,String>> updateTask(TaskModel task) async {
+  
+  String errorMsg = "";
+  await db
+      .collection("Tasks")
+      .doc(task.id)
+      .update(task.toMap())
+      .onError((error, stackTrace) {
+    print(error);
+    errorMsg = error.toString();
+  });
+
+  return errorMsg.isEmpty? const Right("Task Updated Successfully") : Left(errorMsg);
+  
+}

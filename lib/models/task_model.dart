@@ -1,9 +1,9 @@
 
 class TaskModel {
   late String id;
-  final String title;
+  String title;
   final int addedDate;
-  final int updatedDate;
+  int updatedDate;
 
 
   TaskModel({
@@ -11,10 +11,6 @@ class TaskModel {
     required this.addedDate,
     required this.updatedDate,
   });
-
-
-
-
 
   factory TaskModel.fromMap(Map<String, dynamic> json) => TaskModel(
     title: json["title"],
