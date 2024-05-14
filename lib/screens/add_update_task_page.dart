@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:my_secretary/screens/tasks_page.dart';
 import 'package:my_secretary/services/firebase_service.dart';
 import 'package:my_secretary/models/task_model.dart';
@@ -22,7 +25,8 @@ class AddUpdateTaskPage extends StatefulWidget {
 class _AddTaskPageState extends State<AddUpdateTaskPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController _textEditingTitleController = TextEditingController();
+  final TextEditingController _textEditingNotesController = TextEditingController();
 
   bool _isLoading = false;
 
@@ -44,77 +48,120 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
             key: _formKey,
             child: Column(
               children: [
-                Expanded(
-                  child: Container(
-                    height: double.maxFinite,
-                    child: TextFormField(
-                      controller: _textEditingController,
-                      maxLines: 40,
-                      keyboardType: TextInputType.multiline,
-                      decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        counterStyle: TextStyle(backgroundColor: Colors.white),
-                        hintText: 'Enter your task here...',
-                        border: OutlineInputBorder(),
+                Container(
+                  padding: EdgeInsetsDirectional.only(start: 15),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    color: Colors.white,
+                  ),
+
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsetsDirectional.only(end: 12),
+                        child: TextFormField(
+                          controller: _textEditingTitleController,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          decoration:  InputDecoration(
+                              fillColor: Colors.white,
+                              filled: true,
+                              hintText: 'Title',
+                              contentPadding: EdgeInsets.symmetric(vertical: 20),
+                              border: OutlineInputBorder(
+                                  borderSide: BorderSide.none
+                              )
+
+                          ),
+
+                          validator: (text) {
+                            if (text!.isEmpty) {
+                              return "the Task title should be written";
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       ),
-                      validator: (text) {
-                        if (text!.isEmpty) {
-                          return "a Task should be written";
-                        } else {
-                          return null;
-                        }
-                      },
-                    ),
+                      Divider(color: Color(0Xff1fcd99), height: 0,),
+                      Container(
+                        padding: EdgeInsetsDirectional.only(end: 12),
+                        child: TextFormField(
+                          controller: _textEditingNotesController,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+
+                              fillColor: Colors.white,
+                              filled: true,
+                              hintText: 'Notes',
+
+                              contentPadding: EdgeInsets.symmetric(vertical: 20),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  borderSide: BorderSide.none
+                              )
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
+
+                Expanded(
+                  child: const SizedBox(
+                    height: 10,
+                  ),
                 ),
                 Container(
                   width: double.maxFinite,
                   height: 50,
                   child: _isLoading
                       ? ElevatedButton(
-                      style: const ButtonStyle(),
-                      onPressed: () {},
-                      child: const LinearProgressIndicator())
+                          style: const ButtonStyle(),
+                          onPressed: () {},
+                          child: const LinearProgressIndicator(),
+                        )
                       : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0Xff1fcd99), foregroundColor: Colors.white
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        await addTask(TaskModel(
-                            title: _textEditingController.text,
-                            addedDate:
-                            DateTime.now().millisecondsSinceEpoch,
-                            updatedDate: DateTime.now()
-                                .millisecondsSinceEpoch))
-                            .then((value) {
-                          if (value) {
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                    const TasksPage()),
-                                    (Route<dynamic> route) => false);
-                          } else {
-                            customSnackBar(context,
-                                message:
-                                "Failed to add Task. Please try again later.");
-                          }
-                        });
-                      }
-                    },
-                    child: Text(
-                      "Add The New Task",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0Xff1fcd99),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12))
+                              ),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              await addTask(TaskModel(
+                                      title: _textEditingTitleController.text,
+                                      addedDate:
+                                          DateTime.now().millisecondsSinceEpoch,
+                                      updatedDate: DateTime.now()
+                                          .millisecondsSinceEpoch))
+                                  .then((value) {
+                                if (value) {
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const TasksPage()),
+                                      (Route<dynamic> route) => false);
+                                } else {
+                                  customSnackBar(context,
+                                      message:
+                                          "Failed to add Task. Please try again later.");
+                                }
+                              });
+                            }
+                          },
+                          child: Text(
+                            "Add The New Task",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -124,10 +171,6 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
     );
   }
 }
-
-
-
-
 
 class _UpdateTaskPageState extends State<AddUpdateTaskPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -191,42 +234,42 @@ class _UpdateTaskPageState extends State<AddUpdateTaskPage> {
                   height: 50,
                   child: _isLoading
                       ? ElevatedButton(
-                      style: const ButtonStyle(),
-                      onPressed: () {},
-                      child: const LinearProgressIndicator())
+                          style: const ButtonStyle(),
+                          onPressed: () {},
+                          child: const LinearProgressIndicator())
                       : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0Xff1fcd99), foregroundColor: Colors.white
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          _isLoading = true;
-                        });
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0Xff1fcd99),
+                              foregroundColor: Colors.white),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _isLoading = true;
+                              });
 
-                        task.title = _textEditingController.text;
-                        task.updatedDate = DateTime.now().millisecondsSinceEpoch;
-                        await updateTask(task)
-                            .then((value) {
-                          value.fold((l) {
-                            customSnackBar(context, message: l);
-                          }, (r) {
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                    const TasksPage()),
-                                    (Route<dynamic> route) => false);
-                            customSnackBar(context, message: r);
-                          });
-                        });
-                      }
-                    },
-                    child: const Text(
-                      "Update The Task",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
+                              task.title = _textEditingController.text;
+                              task.updatedDate =
+                                  DateTime.now().millisecondsSinceEpoch;
+                              await updateTask(task).then((value) {
+                                value.fold((l) {
+                                  customSnackBar(context, message: l);
+                                }, (r) {
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const TasksPage()),
+                                      (Route<dynamic> route) => false);
+                                  customSnackBar(context, message: r);
+                                });
+                              });
+                            }
+                          },
+                          child: const Text(
+                            "Update The Task",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
                 ),
               ],
             ),
