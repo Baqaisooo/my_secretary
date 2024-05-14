@@ -28,6 +28,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
   }
 
@@ -46,15 +47,13 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
               children: [
                 Expanded(
                   child: Container(
+                    color: Colors.deepPurpleAccent.withOpacity(0.1),
                     height: double.maxFinite,
                     child: TextFormField(
                       controller: _textEditingController,
                       maxLines: 40,
                       keyboardType: TextInputType.multiline,
                       decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        counterStyle: TextStyle(backgroundColor: Colors.white),
                         hintText: 'Enter your task here...',
                         border: OutlineInputBorder(),
                       ),
@@ -75,15 +74,12 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                   width: double.maxFinite,
                   height: 50,
                   child: _isLoading
-                      ? ElevatedButton(
+                      ? FilledButton(
                           style: const ButtonStyle(),
                           onPressed: () {},
                           child: const LinearProgressIndicator())
-                      : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0Xff1fcd99), foregroundColor: Colors.white
-                    ),
-                     onPressed: () async {
+                      : FilledButton(
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               setState(() {
                                 _isLoading = true;
@@ -110,7 +106,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                               });
                             }
                           },
-                          child: Text(
+                          child: const Text(
                             "Add The New Task",
                             style: TextStyle(fontSize: 20),
                           ),
@@ -162,14 +158,13 @@ class _UpdateTaskPageState extends State<AddUpdateTaskPage> {
               children: [
                 Expanded(
                   child: Container(
+                    color: Colors.deepPurpleAccent.withOpacity(0.1),
                     height: double.maxFinite,
                     child: TextFormField(
                       controller: _textEditingController,
                       maxLines: 40,
                       keyboardType: TextInputType.multiline,
                       decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
                         hintText: 'Enter your task here...',
                         border: OutlineInputBorder(),
                       ),
@@ -190,14 +185,11 @@ class _UpdateTaskPageState extends State<AddUpdateTaskPage> {
                   width: double.maxFinite,
                   height: 50,
                   child: _isLoading
-                      ? ElevatedButton(
+                      ? FilledButton(
                           style: const ButtonStyle(),
                           onPressed: () {},
                           child: const LinearProgressIndicator())
-                      : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0Xff1fcd99), foregroundColor: Colors.white
-                    ),
+                      : FilledButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               setState(() {

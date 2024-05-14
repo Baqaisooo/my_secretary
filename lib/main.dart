@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'screens/tasks_page.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -37,20 +38,9 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0Xff1fcd99)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        fontFamily: "Changa",
-        scaffoldBackgroundColor: Color(0Xff3f10c7),
-        textTheme: TextTheme(bodyLarge: TextStyle(), bodyMedium: TextStyle(), bodySmall: TextStyle()).apply(bodyColor: Color(0Xff7756c2), displayColor: Color(0Xff7756c2)),
-        appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0X00),
-            centerTitle: true,
-            titleTextStyle: TextStyle(
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              fontSize: 30,
-              fontFamily: "Changa"
-            )),
+        fontFamily: "Changa"
       ),
       home: const TasksPage(),
     );
