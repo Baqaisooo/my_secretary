@@ -25,10 +25,33 @@ class AddUpdateTaskPage extends StatefulWidget {
 class _AddTaskPageState extends State<AddUpdateTaskPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _textEditingTitleController = TextEditingController();
-  final TextEditingController _textEditingNotesController = TextEditingController();
+  final TextEditingController _textEditingTitleController =
+      TextEditingController();
+  final TextEditingController _textEditingNotesController =
+      TextEditingController();
 
   bool _isLoading = false;
+
+  bool _dateSwitchValue = false;
+  bool _dateCalenderOpen = false;
+  DateTime _selectedDate = DateTime.now();
+
+  bool _timeSwitchValue = false;
+  TimeOfDay _selectedTime =
+      TimeOfDay(hour: TimeOfDay.now().hour + 1, minute: 0);
+
+  Future<void> _selectTime(BuildContext context) async {
+    setState(() {});
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -48,13 +71,13 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
             key: _formKey,
             child: Column(
               children: [
+                // For title & note
                 Container(
                   padding: EdgeInsetsDirectional.only(start: 15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(12)),
                     color: Colors.white,
                   ),
-
                   child: Column(
                     children: [
                       Container(
@@ -63,17 +86,14 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                           controller: _textEditingTitleController,
                           keyboardType: TextInputType.multiline,
                           maxLines: null,
-                          decoration:  InputDecoration(
+                          decoration: InputDecoration(
                               fillColor: Colors.white,
                               filled: true,
                               hintText: 'Title',
-                              contentPadding: EdgeInsets.symmetric(vertical: 20),
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 20),
                               border: OutlineInputBorder(
-                                  borderSide: BorderSide.none
-                              )
-
-                          ),
-
+                                  borderSide: BorderSide.none)),
                           validator: (text) {
                             if (text!.isEmpty) {
                               return "the Task title should be written";
@@ -83,7 +103,10 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                           },
                         ),
                       ),
-                      Divider(color: Color(0Xff1fcd99), height: 0,),
+                      Divider(
+                        color: Color(0Xff1fcd99),
+                        height: 0,
+                      ),
                       Container(
                         padding: EdgeInsetsDirectional.only(end: 12),
                         child: TextFormField(
@@ -91,28 +114,177 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                           keyboardType: TextInputType.multiline,
                           maxLines: null,
                           decoration: const InputDecoration(
-
                               fillColor: Colors.white,
                               filled: true,
                               hintText: 'Notes',
-
-                              contentPadding: EdgeInsets.symmetric(vertical: 20),
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 20),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(12)),
-                                  borderSide: BorderSide.none
-                              )
-                          ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(12)),
+                                  borderSide: BorderSide.none)),
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                Expanded(
-                  child: const SizedBox(
-                    height: 10,
+                SizedBox(
+                  height: 10,
+                ),
+                // For Date & Time
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        title: InkWell(
+                            onTap: !_dateSwitchValue
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _dateCalenderOpen = true;
+                                    });
+                                  },
+                            child: Text('Date')),
+                        subtitle: _dateSwitchValue
+                            ? InkWell(
+                                onTap: !_dateSwitchValue
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _dateCalenderOpen = true;
+                                        });
+                                      },
+                                child: Text(_dateSwitchValue
+                                    ? _selectedDate.toString().split(" ")[0]
+                                    : ""),
+                              )
+                            : null,
+                        value: _dateSwitchValue,
+                        secondary: Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.redAccent,
+                          ),
+                          child: InkWell(
+                            onTap: !_dateSwitchValue
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _dateCalenderOpen = true;
+                                    });
+                                  },
+                            child: Icon(Icons.calendar_month_outlined,
+                                color: Colors.white),
+                          ),
+                        ),
+                        onChanged: (isToOpen) {
+                          setState(() {
+                            _dateSwitchValue = isToOpen;
+                            _dateCalenderOpen = true;
+                            _timeSwitchValue =
+                                isToOpen ? _timeSwitchValue : false;
+                          });
+                        },
+                      ),
+                      if (_dateSwitchValue && _dateCalenderOpen)
+                        Container(
+                          margin:
+                              EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                          padding: EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: CalendarDatePicker(
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(DateTime.now().year + 5),
+                            onDateChanged: (date) {
+                              setState(() {
+                                _selectedDate =
+                                    DateTime(date.year, date.month, date.day);
+                                // _dateCalenderOpen = !_dateCalenderOpen;
+                              });
+                            },
+                          ),
+                        ),
+                      Divider(
+                        color: Color(0Xff1fcd99),
+                        height: 0,
+                        indent: 60,
+                      ),
+                      SwitchListTile(
+                        title: InkWell(
+                          onTap: !_timeSwitchValue
+                              ? null
+                              : () {
+                                  if (_timeSwitchValue) {
+                                    _dateCalenderOpen = false;
+                                    _selectTime(context);
+                                  }
+                                },
+                          child: Text("Time"),
+                        ),
+                        subtitle: !_timeSwitchValue
+                            ? null
+                            : InkWell(
+                                onTap: !_timeSwitchValue
+                                    ? null
+                                    : () {
+                                        if (_timeSwitchValue) {
+                                          _dateCalenderOpen = false;
+                                          _selectTime(context);
+                                        }
+                                      },
+                                child: _timeSwitchValue
+                                    ? Text(_selectedTime.format(context))
+                                    : null,
+                              ),
+                        value: _timeSwitchValue,
+                        secondary: Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.blueAccent,
+                          ),
+                          child: InkWell(
+                            onTap: !_timeSwitchValue
+                                ? null
+                                : () {
+                              if (_timeSwitchValue) {
+                                _dateCalenderOpen = false;
+                                _selectTime(context);
+                              }
+                            },
+                            child: Icon(Icons.watch_later, color: Colors.white),
+                          ),
+                        ),
+                        onChanged: (isToOpen) {
+                          setState(() {
+                            _timeSwitchValue = isToOpen;
+                            if (isToOpen) {
+                              _dateSwitchValue = true;
+                              _dateCalenderOpen = false;
+                              _selectTime(context);
+                            }
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ),
+
+                Expanded(
+                  child: const SizedBox(),
+                ),
+
+                // For The sumbit btn
                 Container(
                   width: double.maxFinite,
                   height: 50,
@@ -124,11 +296,11 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                         )
                       : ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0Xff1fcd99),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(12))
-                              ),
+                            backgroundColor: Color(0Xff1fcd99),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12))),
                           ),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
