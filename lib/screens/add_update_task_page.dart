@@ -6,6 +6,9 @@ import 'package:flutter/widgets.dart';
 import 'package:my_secretary/screens/tasks_page.dart';
 import 'package:my_secretary/services/firebase_service.dart';
 import 'package:my_secretary/models/task_model.dart';
+import 'package:my_secretary/services/notifications/notification_service.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../components/snackbar.dart';
 
@@ -24,6 +27,9 @@ class AddUpdateTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddUpdateTaskPage> {
+
+
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _textEditingTitleController =
@@ -31,11 +37,16 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
   final TextEditingController _textEditingNotesController =
       TextEditingController();
 
+
+  void _closeKeyboard(BuildContext context) {
+    FocusScope.of(context).unfocus();
+  }
+
   bool _isLoading = false;
 
   bool _dateSwitchValue = false;
   bool _dateCalenderOpen = false;
-  DateTime _selectedDate = DateTime.now();
+  tz.TZDateTime _selectedDate = tz.TZDateTime.now(tz.local);
 
   bool _timeSwitchValue = false;
   TimeOfDay _selectedTime =
@@ -44,11 +55,31 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
   bool _reminderSwitchValue = false;
   TimeOfDay _selectedReminder =
   TimeOfDay(hour: TimeOfDay.now().hour - 1, minute: 0);
-  late DateTime? _reminderDate = null;
+  late tz.TZDateTime? _reminderDate = null;
   final int _defaultReminderPeriodInMiuntes = 10;
 
-  Future<void> _selectTime(BuildContext context) async {
+
+  void _updateTaskDate(DateTime date){
+
+    if(date.year != _selectedDate.year || date.month != _selectedDate.month || date.day != _selectedDate.day ){
+      _selectedDate = tz.TZDateTime(tz.local, date.year, date.month, date.day);
+      _dateCalenderOpen = !_dateCalenderOpen;
+
+      _setDefaultReminder();
+
+      setState(() {});
+      _closeKeyboard(context);
+    }
+
+    _closeKeyboard(context);
     setState(() {});
+  }
+
+
+  Future<void> _selectTime(BuildContext context) async {
+    setState(() {
+      _closeKeyboard(context);
+    });
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
@@ -57,20 +88,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
       setState(() {
 
         _selectedTime = picked??_selectedTime;
-        if(_reminderDate == null){
-          _setDefaultReminder();
-        }
-        else {
-          DateTime tempTimer = _selectedDate;
-          tempTimer.add(Duration(hours: _selectedTime.hour, minutes: _selectedTime.minute));
-
-          DateTime? tempReminder = _reminderDate;
-          tempReminder?.add(Duration(hours: _selectedReminder.hour, minutes: _selectedReminder.minute));
-
-          if(tempReminder!.add( Duration(minutes: _defaultReminderPeriodInMiuntes)).isAfter(tempTimer) ){
-            _setDefaultReminder();
-          }
-        }
+        _setDefaultReminder();
       });
 
   }
@@ -78,7 +96,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
 
   // default reminder is 10 minutes before the Task Time
   void _setDefaultReminder(){
-
+    _closeKeyboard(context);
     int minutes = _selectedTime.hour*60 + _selectedTime.minute;
     if(minutes > _defaultReminderPeriodInMiuntes){
       minutes -= _defaultReminderPeriodInMiuntes;
@@ -93,12 +111,11 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
     }
   }
 
-  // TODO
-  // if the set time is not available
-  // 1. show appropriate message
-  // 2. set to default
+
   Future<void> _selectReminder(BuildContext context) async {
-    setState(() {});
+    setState(() {
+      _closeKeyboard(context);
+    });
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedReminder,
@@ -109,9 +126,13 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
         int _reminderInMuintes = _selectedReminder.hour*60 + _selectedReminder.minute;
         int _taskTimeInMuintes = _selectedTime.hour*60  + _selectedTime.minute;
         if(_reminderInMuintes < _taskTimeInMuintes){
-          _reminderDate = _selectedDate;
+          print("-----------------------");
+          tz.TZDateTime tempReminder = _selectedDate;
+          tempReminder.add(Duration(hours: _reminderDate!.hour, minutes: _reminderDate!.minute));
+          _reminderDate = tempReminder;
         }
         else{
+          print("00000000000000000000000");
           _reminderDate = _selectedDate.subtract(Duration(days: 1));
         }
       });
@@ -216,8 +237,9 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                         ? null
                                         : () {
                                             setState(() {
-                                              _dateCalenderOpen = true;
+                                              _dateCalenderOpen = !_dateCalenderOpen;
                                             });
+                                            _closeKeyboard(context);
                                           },
                                     child: const Text('Date')),
                                 subtitle: _dateSwitchValue
@@ -226,8 +248,9 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                             ? null
                                             : () {
                                                 setState(() {
-                                                  _dateCalenderOpen = true;
+                                                  _dateCalenderOpen = !_dateCalenderOpen;
                                                 });
+                                                _closeKeyboard(context);
                                               },
                                         child: Text(_dateSwitchValue
                                             ? _selectedDate.toString().split(" ")[0]
@@ -246,8 +269,9 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                         ? null
                                         : () {
                                             setState(() {
-                                              _dateCalenderOpen = true;
+                                              _dateCalenderOpen = !_dateCalenderOpen;
                                             });
+                                            _closeKeyboard(context);
                                           },
                                     child: const Icon(Icons.calendar_month_outlined,
                                         color: Colors.white),
@@ -260,6 +284,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                     _timeSwitchValue =
                                         isToOpen ? _timeSwitchValue : false;
                                   });
+                                  _closeKeyboard(context);
                                 },
                               ),
                               if (_dateSwitchValue && _dateCalenderOpen)
@@ -272,16 +297,11 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
                                   child: CalendarDatePicker(
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime(DateTime.now().year + 5),
-                                    onDateChanged: (date) {
-                                      setState(() {
-                                        _selectedDate =
-                                            DateTime(date.year, date.month, date.day);
-                                        // _dateCalenderOpen = !_dateCalenderOpen;
-                                      });
-                                    },
+                                    initialDate: _selectedDate,
+                                    firstDate: tz.TZDateTime.now(tz.local),
+                                    lastDate: tz.TZDateTime(tz.local,tz.TZDateTime.now(tz.local).year+5),
+                                    // lastDate: DateTime(DateTime.now().year + 5),
+                                    onDateChanged: (date) {_updateTaskDate(date);},
                                   ),
                                 ),
                               const Divider(
@@ -298,6 +318,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                             _dateCalenderOpen = false;
                                             _selectTime(context);
                                           }
+                                          _closeKeyboard(context);
                                         },
                                   child: const Text("Time"),
                                 ),
@@ -311,6 +332,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                                   _dateCalenderOpen = false;
                                                   _selectTime(context);
                                                 }
+                                                _closeKeyboard(context);
                                               },
                                         child: _timeSwitchValue
                                             ? Text(_selectedTime.format(context))
@@ -331,6 +353,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                         _dateCalenderOpen = false;
                                         _selectTime(context);
                                       }
+                                      _closeKeyboard(context);
                                     },
                                     child: const Icon(Icons.watch_later, color: Colors.white),
                                   ),
@@ -343,7 +366,11 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                       _dateCalenderOpen = false;
                                       _selectTime(context);
                                     }
+                                    else{
+                                      _selectedDate.subtract(Duration(hours: _selectedDate.hour, minutes: _selectedDate.minute, seconds: _selectedDate.second, milliseconds: _selectedDate.millisecond, microseconds: _selectedDate.microsecond));
+                                    }
                                   });
+
                                 },
                               ),
                             ],
@@ -366,7 +393,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                   ? null
                                   : () {
                                 _selectReminder(context);
-
+                                _closeKeyboard(context);
                               },
                               child: const Text("Reminder Time"),
                             ),
@@ -377,7 +404,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                   ? null
                                   : () {
                                 _selectReminder(context);
-
+                                _closeKeyboard(context);
                               },
                               child:
                               _reminderSwitchValue?
@@ -397,6 +424,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                     ? null
                                     : () {
                                   _selectReminder(context);
+                                  _closeKeyboard(context);
                                   }
                                 ,
                                 child: const Icon(Icons.alarm_add, color: Colors.white),
@@ -408,6 +436,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                                 if(isToOpen)
                                 _selectReminder(context);
                               });
+                              _closeKeyboard(context);
                             },
                           ),
                         ),
@@ -436,34 +465,7 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
                           borderRadius:
                           BorderRadius.all(Radius.circular(12))),
                     ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        await addTask(TaskModel(
-                            title: _textEditingTitleController.text,
-
-                            addedDate:
-                            DateTime.now().millisecondsSinceEpoch,
-                            updatedDate: DateTime.now()
-                                .millisecondsSinceEpoch))
-                            .then((value) {
-                          if (value) {
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                    const TasksPage()),
-                                    (Route<dynamic> route) => false);
-                          } else {
-                            customSnackBar(context,
-                                message:
-                                "Failed to add Task. Please try again later.");
-                          }
-                        });
-                      }
-                    },
+                    onPressed: submitData,
                     child: const Text(
                       "Add The New Task",
                       style: TextStyle(fontSize: 20),
@@ -476,6 +478,67 @@ class _AddTaskPageState extends State<AddUpdateTaskPage> {
         ),
       ),
     );
+  }
+
+
+  submitData() async{
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      _closeKeyboard(context);
+
+      await addTask(TaskModel(
+          title: _textEditingTitleController.text,
+          isTimeChosen: _timeSwitchValue,
+          notes: _textEditingNotesController.text,
+          taskDateTime: _dateSwitchValue?_selectedDate.millisecondsSinceEpoch:null,
+          earlyReminder: _reminderSwitchValue?_reminderDate!.millisecondsSinceEpoch:null,
+          addedDate: tz.TZDateTime.now(tz.local).millisecondsSinceEpoch,
+          updatedDate: tz.TZDateTime.now(tz.local)
+              .millisecondsSinceEpoch,
+          taskDateNotificationID: _dateSwitchValue? await _createTaskDateNotification():null,
+          earlyReminderNotificationID: _reminderSwitchValue? await _createTaskDateNotificationReminder():null
+      )
+
+      )
+          .then((value) {
+        if (value) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  const TasksPage()),
+                  (Route<dynamic> route) => false);
+        } else {
+          customSnackBar(context,
+              message:
+              "Failed to add Task. Please try again later.");
+        }
+      });
+    }
+  }
+
+  Future<int> _createTaskDateNotification() async{
+    tz.TZDateTime notificationDT;
+    if(_timeSwitchValue){
+      notificationDT = tz.TZDateTime(tz.local, _selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
+    }
+    else{
+      notificationDT = tz.TZDateTime(tz.local, _selectedDate.year, _selectedDate.month, _selectedDate.day);
+    }
+    return await NotificationService.scheduleNotification(title: "Did it ?", body: _textEditingTitleController.text, tzDateTime: notificationDT);
+  }
+
+  Future<int> _createTaskDateNotificationReminder() async{
+    tz.TZDateTime reminderNotificationDT;
+    reminderNotificationDT = tz.TZDateTime(tz.local, _reminderDate!.year, _reminderDate!.month, _reminderDate!.day, _selectedReminder.hour, _selectedReminder.minute);
+
+    tz.TZDateTime notificationDT;
+    notificationDT = tz.TZDateTime(tz.local, _selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
+
+    return await NotificationService.scheduleNotification(title: "Don't Forget!!", body: "On ${notificationDT.toString()}\n${_textEditingTitleController.text}", tzDateTime: reminderNotificationDT);
   }
 }
 
@@ -585,4 +648,7 @@ class _UpdateTaskPageState extends State<AddUpdateTaskPage> {
       ),
     );
   }
+
+
+
 }

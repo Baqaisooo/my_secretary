@@ -7,6 +7,7 @@ import 'package:my_secretary/components/snackbar.dart';
 import 'package:my_secretary/models/task_model.dart';
 import 'package:my_secretary/screens/add_update_task_page.dart';
 import 'package:my_secretary/services/firebase_service.dart';
+import 'package:my_secretary/services/notifications/notification_service.dart';
 
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});

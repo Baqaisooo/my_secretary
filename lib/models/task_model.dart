@@ -6,9 +6,10 @@ class TaskModel {
   String? notes;
   int? taskDateTime; // if only a date is set, the time will be 00:00:00
   int? earlyReminder;
-  TaskStatus taskStatus;
-  int? taskDateAlarmID; // on the device
-  int? earlyReminderAlarmID; // on the device
+  bool? isTimeChosen;
+  TaskStatus? taskStatus;
+  int? taskDateNotificationID; // on the device
+  int? earlyReminderNotificationID; // on the device
   final int addedDate;
   int updatedDate;
 
@@ -17,22 +18,24 @@ class TaskModel {
     required this.title,
     required this.addedDate,
     required this.updatedDate,
+    required this.isTimeChosen,
     this.notes,
     this.taskDateTime,
     this.earlyReminder,
-    this.taskDateAlarmID,
-    this.earlyReminderAlarmID,
+    this.taskDateNotificationID,
+    this.earlyReminderNotificationID,
     this.taskStatus=TaskStatus.New
   });
 
   factory TaskModel.fromMap(Map<String, dynamic> json) => TaskModel(
     title: json["title"],
+    isTimeChosen: json["isTimeChosen"],
     notes: json["notes"],
     taskDateTime: json["taskDateTime"],
     earlyReminder: json["earlyReminder"],
-    taskStatus: json["taskStatus"],
-    taskDateAlarmID: json["taskDateAlarmID"],
-    earlyReminderAlarmID: json["earlyReminderAlarmID"],
+    taskStatus: json['taskStatus'] == null? null: TaskStatus.values.firstWhere((e) => e.toString() == 'TaskStatus.${json['taskStatus']}'),
+    taskDateNotificationID: json["taskDateNotificationID"],
+    earlyReminderNotificationID: json["earlyReminderNotificationID"],
     addedDate: json["addedDate"],
     updatedDate: json["updatedDate"],
   );
@@ -41,11 +44,12 @@ class TaskModel {
     return {
       "title" : title,
       "notes" : notes,
+      "isTimeChosen" : isTimeChosen,
       "taskDateTime" : taskDateTime,
       "earlyReminder" : earlyReminder,
-      "taskStatus" : taskStatus,
-      "taskDateAlarmID" : taskDateAlarmID,
-      "earlyReminderAlarmID" : earlyReminderAlarmID,
+      "taskStatus" : taskStatus.toString().split(".").last,
+      "taskDateNotificationID" : taskDateNotificationID,
+      "earlyReminderNotificationID" : earlyReminderNotificationID,
       "addedDate" : addedDate,
       "updatedDate" : updatedDate
     };

@@ -12,6 +12,8 @@ Future<bool> addTask(TaskModel task) async {
       .set(task.toMap())
       .onError((error, stackTrace) {
     print(error);
+    print("======================================");
+    print(stackTrace);
     flag = false;
   });
 
@@ -27,14 +29,13 @@ Future<List<TaskModel>> getTasks() async {
       .get()
       .then((querySnapshot) {
     for (var task in querySnapshot.docs) {
-      tasks.add(TaskModel(
-          title: task["title"],
-          addedDate: task["addedDate"],
-          updatedDate: task["updatedDate"])
+      tasks.add(TaskModel.fromMap(task.data())
         ..id = task.id);
     }
   }).onError((error, stackTrace) {
     print(error);
+    print(stackTrace);
+
   });
 
   return tasks;
