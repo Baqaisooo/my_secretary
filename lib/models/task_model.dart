@@ -1,12 +1,12 @@
 enum TaskStatus{New, Done, Postpone}
 
 class TaskModel {
-  late String id;
+  String? id;
   String title;
   String? notes;
   int? taskDateTime; // if only a date is set, the time will be 00:00:00
   int? earlyReminder;
-  bool? isTimeChosen;
+  bool isTimeChosen;
   TaskStatus? taskStatus;
   int? taskDateNotificationID; // on the device
   int? earlyReminderNotificationID; // on the device
@@ -15,10 +15,11 @@ class TaskModel {
 
 
   TaskModel({
+    this.id,
     required this.title,
     required this.addedDate,
     required this.updatedDate,
-    required this.isTimeChosen,
+    this.isTimeChosen = false,
     this.notes,
     this.taskDateTime,
     this.earlyReminder,
@@ -29,7 +30,7 @@ class TaskModel {
 
   factory TaskModel.fromMap(Map<String, dynamic> json) => TaskModel(
     title: json["title"],
-    isTimeChosen: json["isTimeChosen"],
+    isTimeChosen: json["isTimeChosen"]??false,
     notes: json["notes"],
     taskDateTime: json["taskDateTime"],
     earlyReminder: json["earlyReminder"],

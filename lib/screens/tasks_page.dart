@@ -87,7 +87,7 @@ class _TasksPageState extends State<TasksPage> {
                           dialogWith2Options(context,
                               onBtn1Action: () => setState(() {}),
                               onBtn2Action: () =>
-                                  _deleteTask(task.id, position));
+                                  _deleteTask(task.id!, position));
                         }),
 
                         // All actions are defined in the children parameter.
@@ -98,7 +98,7 @@ class _TasksPageState extends State<TasksPage> {
                               dialogWith2Options(context,
                                   onBtn1Action: () => setState(() {}),
                                   onBtn2Action: () =>
-                                      _deleteTask(task.id, position));
+                                      _deleteTask(task.id!, position));
                             },
                             backgroundColor: const Color(0xFFFE4A49),
                             foregroundColor: Colors.white,
@@ -108,7 +108,7 @@ class _TasksPageState extends State<TasksPage> {
                           SlidableAction(
                             onPressed: (_) async {
                               print("Edit");
-                              await getTask(task.id).then((value) {
+                              await getTask(task.id!).then((value) {
                                 value.fold((l) {
                                   customSnackBar(context, message: l);
                                 }, (r) {
@@ -157,36 +157,54 @@ class _TasksPageState extends State<TasksPage> {
 
                       // The child of the Slidable is what the user sees when the
                       // component is not dragged.
-                      child: Card(
-                        color: Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(
-                              horizontal: 15, vertical: 5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  style: const TextStyle(fontSize: 17),
-                                  tasks[position].title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis),
-                              const Divider(
-                                color: Colors.deepPurpleAccent,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                      child: Text(
-                                        "Added At: $addedAtFormat",
-                                        style: const TextStyle(fontSize: 10),
-                                      )),
-                                  Text(
-                                    "Updated At: $upadtedAtFormat",
-                                    style: const TextStyle(fontSize: 10),
-                                  ),
-                                ],
-                              )
-                            ],
+                      child: GestureDetector(
+                        onTap: () async {
+                          print("Edit");
+                          await getTask(task.id!).then((value) {
+                            value.fold((l) {
+                              customSnackBar(context, message: l);
+                            }, (r) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AddUpdateTaskPage(
+                                        pageUse: PageUse.update, task: task,),
+                                ),
+                              );
+                            });
+                          });
+                        },
+                        child: Card(
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.symmetric(
+                                horizontal: 15, vertical: 5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    style: const TextStyle(fontSize: 17),
+                                    tasks[position].title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis),
+                                const Divider(
+                                  color: Colors.deepPurpleAccent,
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Text(
+                                          "Added At: $addedAtFormat",
+                                          style: const TextStyle(fontSize: 10),
+                                        )),
+                                    Text(
+                                      "Updated At: $upadtedAtFormat",
+                                      style: const TextStyle(fontSize: 10),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ));

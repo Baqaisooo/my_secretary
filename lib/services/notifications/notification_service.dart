@@ -4,12 +4,14 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 
 class NotificationService {
-  static final _notification = FlutterLocalNotificationsPlugin();
+  static final _notificationPlugin = FlutterLocalNotificationsPlugin();
+
+  static get notificationPlugin => _notificationPlugin;
 
   static init() async{
-    _notification.resolvePlatformSpecificImplementation<
+    _notificationPlugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
-    _notification.initialize(const InitializationSettings(
+    _notificationPlugin.initialize(const InitializationSettings(
         android: AndroidInitializationSettings("@mipmap/ic_launcher"),
         iOS: DarwinInitializationSettings()));
 
@@ -35,7 +37,7 @@ class NotificationService {
     int _notificationID = tz.TZDateTime.now(tz.local).hashCode;
 
 
-    await _notification.zonedSchedule(
+    await _notificationPlugin.zonedSchedule(
         _notificationID,
         title,
         body,
